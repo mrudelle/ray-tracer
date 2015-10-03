@@ -1,8 +1,10 @@
 SOURCES = $(wildcard *.cpp base/*.cpp objects/*.cpp lights/*.cpp)
 OBJS = $(SOURCES:.cpp=.o)
+BIN=./bin/
 
-raytrace: $(OBJS) 
-	g++ -g $(OBJS) -o raytrace -lm
+raytrace: $(OBJS)
+	mkdir -p $(BIN)
+	g++ -g $(OBJS) -o $(BIN)/raytrace -lm
 
 %.o: %.cpp
 	g++ -g -c -I. -O $< -o $@ 

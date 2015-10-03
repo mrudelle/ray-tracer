@@ -26,3 +26,9 @@
 *.exe
 *.out
 *.app
+
+# Binaries folder
+bin/
+
+# Out folder
+out/

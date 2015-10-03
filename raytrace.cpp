@@ -20,8 +20,8 @@ using namespace std;
 
 
 
-#define XSIZE 1920
-#define YSIZE 1080
+#define XSIZE 400
+#define YSIZE 300
 
 #define ANTI_ALIASING 1
 
