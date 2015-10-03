@@ -31,6 +31,8 @@ base/hit.o: include/hit.h
 
 base/camera.o: include/camera.h
 
+base/frame_buffer.o: include/frame_buffer.h
+
 objects/object.o: include/object.h
 
 objects/sphere.o: include/sphere.h
@@ -63,6 +65,9 @@ include/hit.h: include/vector.h include/vertex.h
 
 include/camera.h: include/vector.h include/vertex.h
 	touch include/camera.h
+
+include/frame_buffer.h: include/colour.h
+	touch include/frame_buffer.h
 
 include/light.h: include/vector.h include/vertex.h include/ray.h include/colour.h
 	touch include/light.h
