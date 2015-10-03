@@ -390,7 +390,7 @@ int main(int argc, const char *argv[])
 
 
 	// ========== SCENE CHOICE ==========
-	scene = city;
+	scene = first_steps;
 	
 
 
@@ -400,9 +400,8 @@ int main(int argc, const char *argv[])
 	
 	fprintf(stderr, "argc %d : ", argc);
 	for (int i = 0; i<argc; i++) {
-		fprintf(stderr, "argc %d=%s, ", i, argv[i]);
+		fprintf(stderr, "arg %d=%s, ", i, argv[i]);
 	}
-	fprintf(stderr, "\n", argc);
 	
 	if (argc == 9){
 		Vertex dest;

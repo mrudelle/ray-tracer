@@ -78,10 +78,9 @@ Colour Scene::raytrace(Ray &ray, int level, TransparentIntersection *intersec_st
     	double refIndex = closest->obj_mat->refractionIndex;
     	Ray tolight;
 
-    	col.red += ka.red;
-    	col.green += ka.green;
-    	col.blue += ka.blue;
+    	col.set(ka.red, ka.green, ka.blue, 1.0);
 
+    	// add 
     	while (lt != (Light *) 0) {
     		Vector ldir;
     		Vector xldir;
@@ -94,11 +93,7 @@ Colour Scene::raytrace(Ray &ray, int level, TransparentIntersection *intersec_st
 		    // shadow test
 
     		float ldist = lt->distanceToSource(position);
-    		tolight.D.set(
-    			xldir.x,
-    			xldir.y,
-    			xldir.z
-    			);
+    		tolight.D.set(xldir.x, xldir.y, xldir.z);
     		tolight.D.normalise();
     		tolight.P.set(
     			position.x + normal.x * EPSILON_FACTOR,
@@ -114,15 +109,15 @@ Colour Scene::raytrace(Ray &ray, int level, TransparentIntersection *intersec_st
 
 		    // calculation of diffuse component
 
-			float dlc = xldir.dot(normal);
+			float diffuse_component = xldir.dot(normal);
 
 
 		    // calculation of  specular component
 
 			reflectDir.set(
-				-xldir.x + 2 * (dlc) * normal.x,
-				-xldir.y + 2 * (dlc) * normal.y,
-				-xldir.z + 2 * (dlc) * normal.z
+				-xldir.x + 2 * (diffuse_component) * normal.x,
+				-xldir.y + 2 * (diffuse_component) * normal.y,
+				-xldir.z + 2 * (diffuse_component) * normal.z
 				);
 			reflectDir.normalise();
 		    float slc = -reflectDir.dot(ray.D);// there is a minus because the ray direction is inverted
@@ -132,15 +127,15 @@ Colour Scene::raytrace(Ray &ray, int level, TransparentIntersection *intersec_st
 		    slc = pow(slc, phong);
 		    
 		    
-		    if (dlc < 0.0) {
-		    	dlc = 0.0;
+		    if (diffuse_component < 0.0) {
+		    	diffuse_component = 0.0;
 		    }
 
 		    // combine components
 
-		    col.red += lcol.red * (dlc * kd.red + slc * ks.red);
-		    col.green += lcol.green * (dlc * kd.green + slc * ks.green);
-		    col.blue += lcol.blue * (dlc * kd.blue + slc * ks.blue);
+		    col.red += lcol.red * (diffuse_component * kd.red + slc * ks.red);
+		    col.green += lcol.green * (diffuse_component * kd.green + slc * ks.green);
+		    col.blue += lcol.blue * (diffuse_component * kd.blue + slc * ks.blue);
 
 		    lt = lt->next(); // next light
 		}

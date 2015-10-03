@@ -18,10 +18,10 @@ Light *Light::next(void)
   return lt_next;
 }
 
-void Light::getLightProperties(Vertex &pos, Vector *ldir, Colour *intensity)
-{
+void Light::getLightProperties(Vertex &pos, Vector *ldir, Colour *intensity){
+
 }
 
-float Light::distanceToSource(Vertex& pos)
-{
+float Light::distanceToSource(Vertex& pos) {
+	return 0.0;
 }
