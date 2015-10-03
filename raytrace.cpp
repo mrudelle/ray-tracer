@@ -17,6 +17,7 @@ using namespace std;
 #include "include/cube.h"
 #include "include/pointLight.h"
 #include "include/material.h"
+#include "include/frame_buffer.h"
 
 
 
@@ -36,8 +37,6 @@ using namespace std;
 #define CITY_SIZE_X 5
 #define CITY_SIZE_Y 10
 
-Colour frame_buffer[YSIZE][XSIZE];
-
 float frand()
 {
 	int x;
@@ -50,44 +49,10 @@ float frand()
 	return f;
 }
 
-void write_framebuffer()
-{
-	int x, y;
-	float r, g, b;
-
-	printf("P3\n%d %d\n255\n", XSIZE, YSIZE);
-
-	for(y=YSIZE-1;y>=0;y-=1)
-	{
-		for(x=0;x<XSIZE;x+=1)
-		{
-			r = 255.0 * frame_buffer[y][x].getRed();
-			g = 255.0 * frame_buffer[y][x].getGreen();
-			b = 255.0 * frame_buffer[y][x].getBlue();
-			if (r > 255.0) r = 255.0;
-			if (g > 255.0) g = 255.0;
-			if (b > 255.0) b = 255.0;
-			printf("%d %d %d\n",(int)r, (int)g, (int)b);
-		}
-	}
-}
-
-void clear_framebuffer()
-{
-	int x,y;
-
-	for(y=0;y<YSIZE;y+=1)
-	{
-		for(x=0;x<XSIZE;x+=1)
-		{
-			frame_buffer[y][x].clear();
-		}
-	}
-}
-
 void printTransform(string name, Transformation tt) 
 {
-	fprintf(stderr, "Transform %s:\n%f, %f, %f, %f\n%f, %f, %f, %f\n%f, %f, %f, %f\n", name.c_str(), tt.A, tt.B, tt.C, tt.D, tt.E, tt.F, tt.G, tt.H, tt.I, tt.J, tt.K, tt.L);
+	fprintf(stderr, "Transform %s:\n%f, %f, %f, %f\n%f, %f, %f, %f\n%f, %f, %f, %f\n", 
+		name.c_str(), tt.A, tt.B, tt.C, tt.D, tt.E, tt.F, tt.G, tt.H, tt.I, tt.J, tt.K, tt.L);
 }
      
 void makeTriangle(Vertex a, Vertex b, Vertex c, Material *m, Scene *scene, TransformationStack *ts) {
@@ -120,7 +85,9 @@ int main(int argc, const char *argv[])
 
 	srand(4250085);
 
-	clear_framebuffer();
+	// create the frame buffer holding the image
+	FrameBuffer frameBuffer(XSIZE, YSIZE);
+	frameBuffer.clear();
 
   // SETUP SCENES
 	
@@ -437,12 +404,15 @@ int main(int argc, const char *argv[])
 	Vertex dof_p;
 	Ray primaryRay, dof_ray;
 	float dist_to_focal, sample_d, sample_alpha;
+	Colour cumulativeColour;
 	
 	for(y=0;y<YSIZE;y+=1)
 	{
 	    for(x=0;x<XSIZE;x+=1)
 		{
-		float yoffset = ((float)YSIZE/2)/(float)XSIZE;
+			cumulativeColour.clear();
+
+			float yoffset = ((float)YSIZE/2)/(float)XSIZE;
 			for (ai=0;ai<ANTI_ALIASING;ai+=1){
 			    
 				//Compute antialiasing sample
@@ -498,12 +468,14 @@ int main(int argc, const char *argv[])
 				    Colour col = scene->raytrace(dof_ray, 6, (TransparentIntersection*)0);
 
 				     // Save result in frame buffer
-				    frame_buffer[y][x].red += col.red/(ANTI_ALIASING*DOF_SAMPLES);
-				    frame_buffer[y][x].green += col.green/(ANTI_ALIASING*DOF_SAMPLES);
-				    frame_buffer[y][x].blue += col.blue/(ANTI_ALIASING*DOF_SAMPLES);
+				    cumulativeColour.red += col.red/(ANTI_ALIASING*DOF_SAMPLES);
+				    cumulativeColour.green += col.green/(ANTI_ALIASING*DOF_SAMPLES);
+				    cumulativeColour.blue += col.blue/(ANTI_ALIASING*DOF_SAMPLES);
 				    
 				} 
 			}
+
+			frameBuffer.setValue(x, y, cumulativeColour);
 		}
 	    if (y%(YSIZE/30) < 1){
 		fprintf(stderr, "=");
@@ -513,6 +485,6 @@ int main(int argc, const char *argv[])
 
 	fprintf(stderr, "|\n");
 
-  // OUTPUT IMAGE	
-    write_framebuffer();
+  	// OUTPUT IMAGE	
+    frameBuffer.writePPM();
 }

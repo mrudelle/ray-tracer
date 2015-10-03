@@ -9,7 +9,7 @@ raytrace: $(OBJS)
 %.o: %.cpp
 	g++ -g -c -I. -O $< -o $@ 
 
-raytrace.o: include/scene.h include/sphere.h include/triangle.h include/plane.h include/directional_light.h include/spot_light.h include/transformation.h include/transformation_stack.h
+raytrace.o: include/scene.h include/sphere.h include/triangle.h include/plane.h include/directional_light.h include/spot_light.h include/transformation.h include/transformation_stack.h include/frame_buffer.h
 
 base/scene.o: include/scene.h
 

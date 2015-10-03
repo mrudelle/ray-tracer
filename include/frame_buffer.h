@@ -19,6 +19,8 @@ public:
     //TODO: add base color here
     FrameBuffer(int width, int height);
     void setValue(int x, int y, Colour &colour);
+    void clear(int x, int y);
+    void clear();
     Colour getValue(int x, int y);
 
     void writePPM();

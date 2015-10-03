@@ -12,8 +12,24 @@ FrameBuffer::FrameBuffer(int width, int height){
     this->buffer.resize(height, std::vector<Colour>(width));
 }
 
-void FrameBuffer::setValue(int x, int y, Colour &colour){
+void FrameBuffer::setValue(int x, int y, Colour &colour) {
     this->buffer[y][x].set(colour.red, colour.green, colour.blue, colour.alpha);
+}
+
+void FrameBuffer::clear(int x, int y) {
+    this->buffer[y][x].clear();
+}
+
+void FrameBuffer::clear() {
+    int x,y;
+
+    for(y=0; y<this->height; y+=1)
+    {
+       for(x=0; x<this->width; x+=1)
+       {
+           this->buffer[y][x].clear();
+       }
+   }
 }
 
 Colour FrameBuffer::getValue(int x, int y) {
