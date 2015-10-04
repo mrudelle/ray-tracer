@@ -3,6 +3,7 @@
  */
 
 #include <stdio.h>
+#include <iostream>
 #include "include/frame_buffer.h"
 #include "include/colour.h"
 
@@ -58,11 +59,20 @@ void FrameBuffer::writePPM() {
 }
 
 void FrameBuffer::writePAM() {
-    // TODO: implement real method
     int x, y;
-    float r, g, b;
+    float r, g, b, a;
 
-    printf("P3\n%d %d\n255\n", this->width, this->height);
+    // Pam header is of the form:
+    // P7
+    // WIDTH <width>
+    // HEIGHT <height>
+    // DEPTH 4
+    // MAXVAL 255
+    // TUPLTYPE RGB_ALPHA
+    // ENDHDR
+
+    printf("P7\nWIDTH %d \nHEIGHT %d \nDEPTH 4 \nMAXVAL 255 \nTUPLTYPE RGB_ALPHA\nENDHDR \n", 
+        this->width, this->height);
 
     for(y=this->height-1; y>=0; y-=1) 
     {
@@ -71,10 +81,17 @@ void FrameBuffer::writePAM() {
             r = 255.0 * this->buffer[y][x].getRed();
             g = 255.0 * this->buffer[y][x].getGreen();
             b = 255.0 * this->buffer[y][x].getBlue();
+            a = 255.0 * this->buffer[y][x].getAlpha();
             if (r > 255.0) r = 255.0;
             if (g > 255.0) g = 255.0;
             if (b > 255.0) b = 255.0;
-            printf("%d %d %d\n",(int)r, (int)g, (int)b);
+            printf("%c%c%c%c", (unsigned char)r, (unsigned char)g, (unsigned char)b, (unsigned char)a);
+            // printf("%d %d %d %d\n",(int)r, (int)g, (int)b, (int)a);
+
+            // std::cout.write(reinterpret_cast<const char *>(&r), sizeof(r));
+            // std::cout.write(reinterpret_cast<const char *>(&g), sizeof(g));
+            // std::cout.write(reinterpret_cast<const char *>(&b), sizeof(b));
+            // std::cout.write(reinterpret_cast<const char *>(&a), sizeof(a));
         }
     }
 }

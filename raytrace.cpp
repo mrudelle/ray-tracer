@@ -471,6 +471,7 @@ int main(int argc, const char *argv[])
 				    cumulativeColour.red += col.red/(ANTI_ALIASING*DOF_SAMPLES);
 				    cumulativeColour.green += col.green/(ANTI_ALIASING*DOF_SAMPLES);
 				    cumulativeColour.blue += col.blue/(ANTI_ALIASING*DOF_SAMPLES);
+				    cumulativeColour.alpha += col.alpha/(ANTI_ALIASING*DOF_SAMPLES);
 				    
 				} 
 			}
@@ -486,5 +487,5 @@ int main(int argc, const char *argv[])
 	fprintf(stderr, "|\n");
 
   	// OUTPUT IMAGE	
-    frameBuffer.writePPM();
+    frameBuffer.writePAM();
 }
