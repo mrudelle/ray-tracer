@@ -9,6 +9,7 @@ public:
   float alpha;
   Colour(void);
   void clear(void);
+  void blacken(void);
   void set(float pred, float pgreen, float pblue, float palpha);
   float getRed(void);
   float getGreen(void);

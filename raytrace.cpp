@@ -17,17 +17,18 @@ using namespace std;
 #include "include/cube.h"
 #include "include/pointLight.h"
 #include "include/material.h"
+#include "include/frame_buffer.h"
 
 
 
 #define XSIZE 400
-#define YSIZE 300
+#define YSIZE 400
 
-#define ANTI_ALIASING 1
+#define ANTI_ALIASING 100
 
 #define DOF_SAMPLES 1
-#define DOF_LENS_DIAMETER 0.030
-#define DOF_FOCAL_DISTANCE 2
+#define DOF_LENS_DIAMETER 0.040
+#define DOF_FOCAL_DISTANCE 0.7
 
 #define VIEW_PLANE_DISTANCE 0.5
 
@@ -35,8 +36,6 @@ using namespace std;
 
 #define CITY_SIZE_X 5
 #define CITY_SIZE_Y 10
-
-Colour frame_buffer[YSIZE][XSIZE];
 
 float frand()
 {
@@ -50,44 +49,10 @@ float frand()
 	return f;
 }
 
-void write_framebuffer()
-{
-	int x, y;
-	float r, g, b;
-
-	printf("P3\n%d %d\n255\n", XSIZE, YSIZE);
-
-	for(y=YSIZE-1;y>=0;y-=1)
-	{
-		for(x=0;x<XSIZE;x+=1)
-		{
-			r = 255.0 * frame_buffer[y][x].getRed();
-			g = 255.0 * frame_buffer[y][x].getGreen();
-			b = 255.0 * frame_buffer[y][x].getBlue();
-			if (r > 255.0) r = 255.0;
-			if (g > 255.0) g = 255.0;
-			if (b > 255.0) b = 255.0;
-			printf("%d %d %d\n",(int)r, (int)g, (int)b);
-		}
-	}
-}
-
-void clear_framebuffer()
-{
-	int x,y;
-
-	for(y=0;y<YSIZE;y+=1)
-	{
-		for(x=0;x<XSIZE;x+=1)
-		{
-			frame_buffer[y][x].clear();
-		}
-	}
-}
-
 void printTransform(string name, Transformation tt) 
 {
-	fprintf(stderr, "Transform %s:\n%f, %f, %f, %f\n%f, %f, %f, %f\n%f, %f, %f, %f\n", name.c_str(), tt.A, tt.B, tt.C, tt.D, tt.E, tt.F, tt.G, tt.H, tt.I, tt.J, tt.K, tt.L);
+	fprintf(stderr, "Transform %s:\n%f, %f, %f, %f\n%f, %f, %f, %f\n%f, %f, %f, %f\n", 
+		name.c_str(), tt.A, tt.B, tt.C, tt.D, tt.E, tt.F, tt.G, tt.H, tt.I, tt.J, tt.K, tt.L);
 }
      
 void makeTriangle(Vertex a, Vertex b, Vertex c, Material *m, Scene *scene, TransformationStack *ts) {
@@ -120,7 +85,9 @@ int main(int argc, const char *argv[])
 
 	srand(4250085);
 
-	clear_framebuffer();
+	// create the frame buffer holding the image
+	FrameBuffer frameBuffer(XSIZE, YSIZE);
+	frameBuffer.clear();
 
   // SETUP SCENES
 	
@@ -181,7 +148,8 @@ int main(int argc, const char *argv[])
 	city_floor_p.set(0,1,0);
 	city_floor = new Plane(city_floor_p, 0.5001);
 	city_floor_mat = new Material();
-        city_floor_mat->setPhong(0.35588, 0.85098, 0.423529, 0.1, 0.9, 0.1, 0, 0.0, 1.5, 10);
+    //city_floor_mat->setPhong(0.35588, 0.85098, 0.423529, 0.1, 0.9, 0.1, 0, 0.0, 1.5, 10);
+    city_floor_mat->setPhong(1.0, 1.0, 1.0, 0.1, 0.9, 0.1, 0, 0.0, 1.5, 10);
 	city_floor->setMaterial(city_floor_mat);
 	city->addObject(*city_floor);
 	// ========== END SCENE -> CITY ==========
@@ -294,13 +262,13 @@ int main(int argc, const char *argv[])
 	first_steps->addLight(*pl);
 	// Create a transformation stack
 	Transformation move0, move1,move2,scale,rotation;
-	move1.translation(0, 0, -1.5);
+	move1.translation(0, 0, 0);
 	ts->Push(&move1);
-	scale.scale(0.8,0.8,0.5);
+	scale.scale(0.8,-0.8,0.5);
 	ts->Push(&scale);
 	rotation.rotationz(PI/4);
 	ts->Push(&rotation);
-	move2.translation(0, 0, 1.5);
+	move2.translation(0, 0, 0);
 	ts->Push(&move2);
 	// Add 10 random spheres to the scene
 	for (n = 0; n < 10; n += 1)
@@ -309,7 +277,7 @@ int main(int argc, const char *argv[])
 		Material *m;
 		Vertex p;
     	// position
-		p.set(frand()-0.5,frand()-0.5,frand()+1.0,1.0);
+		p.set(frand()-0.5,frand()-0.5,frand()-0.5,1.0);
     	// create with random radius
 		s = new Sphere(p, frand()/2.0);
     	// create new material with shared random Ka and Kd
@@ -335,9 +303,9 @@ int main(int argc, const char *argv[])
 		Material *m;
 		Vertex p1, p2, p3;
     	// position
-		p1.set(frand()-0.5,frand()-0.5,frand()+1.0,1.0);
-		p2.set(frand()-0.5,frand()-0.5,frand()+1.0,1.0);
-		p3.set(frand()-0.5,frand()-0.5,frand()+1.0,1.0);
+		p1.set(frand()-0.5,frand()-0.5,frand()-0.5,1.0);
+		p2.set(frand()-0.5,frand()-0.5,frand()-0.5,1.0);
+		p3.set(frand()-0.5,frand()-0.5,frand()-0.5,1.0);
     	// create new material with shared random Ka and Kd
 		m = new Material();
 		cr = frand(); cg = frand(); cb = frand(); ca = frand();
@@ -354,12 +322,14 @@ int main(int argc, const char *argv[])
 	floor = new Plane(v1, 0.5);
 	// create new material with shared random Ka and Kd
 	mfloor = new Material();
-	cr = frand(); cg = frand(); cb = frand(); ca = frand();
+	cr = 230.0/255.0; cg = 126.0/255.0; cb = 24.0/255.0;
+	// cr = frand(); cg = frand(); cb = frand(); ca = frand();
 	mfloor->setPhong(cr, cg, cb, 0.1, 0.5, 0.1, 0.5, 0.0, 1.5, 10);
 	floor->setMaterial(mfloor);
 	transfo = ts->CombineStack();
 	floor->setTransformation(&transfo);
 	first_steps->addObject(*floor);
+
 	//Create a transparent cube
 	Cube *cube = new Cube(-1, -0.5, 0.5, 2, 1, 0.2);
 	Material *m = new Material();
@@ -367,10 +337,11 @@ int main(int argc, const char *argv[])
 	m->setPhong(1, 1, 1, 0.05, 0.0, 0.3, 0.1, 0.9, 1.5, 200.0);
 	cube->setMaterial(m);
 	//first_steps->addObject(*cube);
+
+	//Create a quadratic elipse
 	Transformation *teli = new Transformation();
 	teli->translation(0.5, 0.0, -1);
 	ts->Push(teli);
-	//Create a quadratic elipse
 	Quadratic elipse;
 	elipse.set(1,1,1,0,0,0,0,0,0,-0.25);
 	Material melipse;
@@ -379,17 +350,22 @@ int main(int argc, const char *argv[])
 	Transformation tfeli = ts->CombineStack();
 	elipse.setTransformation(&tfeli);
 	//first_steps->addObject(elipse);
+
 	//create a sphere
 	Vertex sv;
 	sv.set(0.5,0,-0.5,1);
 	Sphere *boule = new Sphere(sv, 0.5);
 	boule->setMaterial(&melipse);
-	first_steps->addObject(*boule);  
+	//first_steps->addObject(*boule);  
 	// ========== END SCENE -> FIRSTSTEPS ==========   
 
 
 
 	// ========== SCENE CHOICE ==========
+	// scene = fishbowl;
+	// scene = city;
+	// scene = fractal;
+	// scene = hourglass;
 	scene = first_steps;
 	
 
@@ -402,7 +378,12 @@ int main(int argc, const char *argv[])
 	for (int i = 0; i<argc; i++) {
 		fprintf(stderr, "arg %d=%s, ", i, argv[i]);
 	}
-	
+	// parameters
+	// 3 floats: center of view (x, y, z)
+	// 1 float: distance to center
+	// 1 float: horizontal angle of view in degrees
+	// 3 floats: up vector (x, y, z)
+
 	if (argc == 9){
 		Vertex dest;
 		dest.set((float)atof(argv[1]),(float)atof(argv[2]),(float)atof(argv[3]),1.0);
@@ -437,12 +418,15 @@ int main(int argc, const char *argv[])
 	Vertex dof_p;
 	Ray primaryRay, dof_ray;
 	float dist_to_focal, sample_d, sample_alpha;
+	Colour cumulativeColour;
 	
 	for(y=0;y<YSIZE;y+=1)
 	{
 	    for(x=0;x<XSIZE;x+=1)
 		{
-		float yoffset = ((float)YSIZE/2)/(float)XSIZE;
+			cumulativeColour.blacken();
+
+			float yoffset = ((float)YSIZE/2)/(float)XSIZE;
 			for (ai=0;ai<ANTI_ALIASING;ai+=1){
 			    
 				//Compute antialiasing sample
@@ -498,12 +482,15 @@ int main(int argc, const char *argv[])
 				    Colour col = scene->raytrace(dof_ray, 6, (TransparentIntersection*)0);
 
 				     // Save result in frame buffer
-				    frame_buffer[y][x].red += col.red/(ANTI_ALIASING*DOF_SAMPLES);
-				    frame_buffer[y][x].green += col.green/(ANTI_ALIASING*DOF_SAMPLES);
-				    frame_buffer[y][x].blue += col.blue/(ANTI_ALIASING*DOF_SAMPLES);
+				    cumulativeColour.red += col.red/(ANTI_ALIASING*DOF_SAMPLES);
+				    cumulativeColour.green += col.green/(ANTI_ALIASING*DOF_SAMPLES);
+				    cumulativeColour.blue += col.blue/(ANTI_ALIASING*DOF_SAMPLES);
+				    cumulativeColour.alpha += col.alpha/(ANTI_ALIASING*DOF_SAMPLES);
 				    
 				} 
 			}
+
+			frameBuffer.setValue(x, y, cumulativeColour);
 		}
 	    if (y%(YSIZE/30) < 1){
 		fprintf(stderr, "=");
@@ -513,6 +500,6 @@ int main(int argc, const char *argv[])
 
 	fprintf(stderr, "|\n");
 
-  // OUTPUT IMAGE	
-    write_framebuffer();
+  	// OUTPUT IMAGE	
+    frameBuffer.writePPM();
 }
