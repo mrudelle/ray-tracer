@@ -18,7 +18,7 @@ void FrameBuffer::setValue(int x, int y, Colour &colour) {
 }
 
 void FrameBuffer::clear(int x, int y) {
-    this->buffer[y][x].clear();
+    this->buffer[y][x].blacken();
 }
 
 void FrameBuffer::clear() {
@@ -28,7 +28,7 @@ void FrameBuffer::clear() {
     {
        for(x=0; x<this->width; x+=1)
        {
-           this->buffer[y][x].clear();
+           this->buffer[y][x].blacken();
        }
    }
 }
